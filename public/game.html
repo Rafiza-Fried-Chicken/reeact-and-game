@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Game — ReactTelegram</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="game-wrap">
+    <div class="game-top">
+      <div id="playerName"></div>
+      <button id="back">Kembali</button>
+    </div>
+    <canvas id="gameCanvas" width="800" height="500"></canvas>
+    <div class="game-hud">
+      <p id="status">Status: connecting...</p>
+      <p>Kontrol: WASD / Arrow keys</p>
+    </div>
+  </div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const socket = io();
+const name = localStorage.getItem('rt_username') || ('Guest-' + Math.floor(Math.random()*1000));
+document.getElementById('playerName').innerText = name;
+document.getElementById('back').onclick = () => window.location.href = '/chat.html';
+
+socket.emit('join', { username: name });
+socket.emit('game-join', {});
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+const state = { players: {}, items: {} };
+const me = { id: null, x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: 12, color: randomColor(), name };
+
+let keys = {};
+window.addEventListener('keydown', e => keys[e.key] = true);
+window.addEventListener('keyup', e => keys[e.key] = false);
+
+socket.on('connect', () => {
+  me.id = socket.id;
+  document.getElementById('status').innerText = 'Status: connected';
+  socket.emit('game-action', { type: 'spawn', x: me.x, y: me.y });
+});
+
+socket.on('game-joined', d => {
+  // ready
+});
+
+socket.on('game-player-joined', p => {
+  // optional
+});
+
+socket.on('game-action', payload => {
+  // payload: { id, name, action }
+  if (!payload || !payload.id) return;
+  if (payload.id === me.id) {
+    // ignore our own broadcast if you want
+  }
+  // keep other players positions
+  if (!state.players[payload.id]) {
+    state.players[payload.id] = { x: payload.action.x, y: payload.action.y, name: payload.name, color: payload.action.color || randomColor(), size: 12 };
+  } else {
+    state.players[payload.id].x = payload.action.x;
+    state.players[payload.id].y = payload.action.y;
+  }
+});
+
+// game loop: update local pos and broadcast
+function update() {
+  const speed = 2.2;
+  if (keys['ArrowUp'] || keys['w'] || keys['W']) me.y -= speed;
+  if (keys['ArrowDown'] || keys['s'] || keys['S']) me.y += speed;
+  if (keys['ArrowLeft'] || keys['a'] || keys['A']) me.x -= speed;
+  if (keys['ArrowRight'] || keys['d'] || keys['D']) me.x += speed;
+
+  // bounds
+  me.x = Math.max(0, Math.min(canvas.width, me.x));
+  me.y = Math.max(0, Math.min(canvas.height, me.y));
+
+  // send position to server
+  socket.emit('game-action', { type: 'move', x: me.x, y: me.y, color: me.color });
+
+  draw();
+  requestAnimationFrame(update);
+}
+
+function draw() {
+  ctx.clearRect(0,0,canvas.width, canvas.height);
+  // draw me
+  drawCircle(me.x, me.y, me.size, me.color, me.name + ' (You)');
+
+  // draw others
+  for (const id in state.players) {
+    if (id === me.id) continue;
+    const p = state.players[id];
+    drawCircle(p.x, p.y, p.size, p.color, p.name || 'Player');
+  }
+}
+
+function drawCircle(x,y,r,color,label) {
+  ctx.beginPath();
+  ctx.fillStyle = color;
+  ctx.arc(x, y, r, 0, Math.PI*2);
+  ctx.fill();
+  ctx.closePath();
+  ctx.fillStyle = '#fff';
+  ctx.font = '12px sans-serif';
+  ctx.fillText(label || '', x + r + 4, y + 4);
+}
+
+function randomColor() {
+  const h = Math.floor(Math.random() * 360);
+  return `hsl(${h} 70% 50%)`;
+}
+
+update();
+</script>
+</body>
+</html>
