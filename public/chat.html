@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Chat — ReactTelegram</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <h2>ReactTelegram</h2>
+      <div class="profile">
+        <div id="meName"></div>
+        <button id="toGame">Main Game</button>
+        <button id="logout" class="muted-btn">Logout</button>
+      </div>
+
+      <div class="users">
+        <h3>Online</h3>
+        <ul id="userList"></ul>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="chat-window">
+        <div id="messages" class="messages"></div>
+        <div class="composer">
+          <input id="toUser" placeholder="Kirim ke (kosong=semua)" />
+          <input id="text" placeholder="Tulis pesan..." />
+          <button id="send">Kirim</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const socket = io();
+const me = localStorage.getItem('rt_username') || ('Guest-' + Math.floor(Math.random()*1000));
+document.getElementById('meName').innerText = me;
+document.getElementById('toGame').onclick = () => window.location.href = '/game.html';
+document.getElementById('logout').onclick = () => { localStorage.clear(); window.location.href = '/'; };
+
+socket.emit('join', { username: me });
+
+const messagesEl = document.getElementById('messages');
+function addMessage(m, cls='') {
+  const p = document.createElement('div');
+  p.className = 'msg ' + cls;
+  p.innerHTML = `<div class="meta">${m.from || 'System'} <span class="time">${new Date(m.time).toLocaleTimeString()}</span></div>
+                 <div class="body">${escapeHtml(m.text)}</div>`;
+  messagesEl.appendChild(p);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function addSystem(text) {
+  const p = document.createElement('div');
+  p.className = 'system';
+  p.innerText = text;
+  messagesEl.appendChild(p);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+socket.on('chat-message', msg => {
+  addMessage(msg, msg.from === me ? 'me' : '');
+});
+
+socket.on('system-message', m => {
+  addSystem(m.text);
+});
+
+socket.on('user-list', list => {
+  const ul = document.getElementById('userList');
+  ul.innerHTML = '';
+  list.forEach(u => {
+    const li = document.createElement('li');
+    li.innerText = u;
+    ul.appendChild(li);
+  });
+});
+
+document.getElementById('send').onclick = () => {
+  const text = document.getElementById('text').value.trim();
+  const to = document.getElementById('toUser').value.trim() || null;
+  if (!text) return;
+  socket.emit('chat-message', { text, to });
+  document.getElementById('text').value = '';
+};
+
+function escapeHtml(s){ return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+</script>
+</body>
+</html>
