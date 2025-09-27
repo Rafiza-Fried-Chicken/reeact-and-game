@@ -1,0 +1,57 @@
+/* style.css - modern aesthetic */
+:root{
+  --bg1:#0f1724;
+  --accent:#ff6b6b;
+  --muted:rgba(255,255,255,0.7);
+}
+
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Inter,Segoe UI,system-ui,Arial;color:#fff;background:linear-gradient(120deg,#061226 0%, #0f1724 60%);}
+
+.center-card{
+  width:380px;
+  margin:60px auto;
+  background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+  border-radius:12px;
+  padding:22px;
+  box-shadow:0 10px 30px rgba(2,6,23,0.7);
+  text-align:center;
+}
+
+.center-card h1{margin:0 0 6px;font-size:28px}
+.center-card .muted{color:var(--muted)}
+.auth-box{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+.auth-box input{padding:10px;border-radius:8px;border:none;background:rgba(255,255,255,0.06);color:#fff}
+.row{display:flex;gap:8px}
+button{background:var(--accent);border:none;padding:10px 12px;border-radius:8px;color:#fff;font-weight:600;cursor:pointer}
+.muted-btn{background:transparent;border:1px solid rgba(255,255,255,0.08);color:var(--muted)}
+.links{display:flex;justify-content:space-between;margin-top:12px}
+.links a{color:var(--muted);font-size:13px;text-decoration:none}
+
+/* App layout */
+.app{display:flex;height:100vh}
+.sidebar{
+  width:240px;padding:18px; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-right:1px solid rgba(255,255,255,0.03);
+}
+.sidebar h2{margin:0 0 8px}
+.profile{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.users{margin-top:12px}
+.users ul{list-style:none;padding:0;margin:0}
+.users li{padding:6px 8px;border-radius:6px;margin-bottom:6px;background:rgba(255,255,255,0.02)}
+
+/* main chat */
+.main{flex:1;display:flex;align-items:center;justify-content:center}
+.chat-window{width:80%;max-width:900px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:12px;border-radius:10px}
+.messages{height:60vh;overflow:auto;padding:10px;background:rgba(0,0,0,0.25);border-radius:8px}
+.msg{margin-bottom:10px;padding:8px;border-radius:8px;background:rgba(0,0,0,0.35)}
+.msg.me{background:linear-gradient(90deg,#2bffb0,#7ef1d5);color:#001}
+.system{margin-top:8px;text-align:center;color:var(--muted);font-size:13px}
+.composer{display:flex;gap:8px;margin-top:8px}
+.composer input{flex:1;padding:10px;border-radius:8px;border:none;background:rgba(255,255,255,0.04);color:#fff}
+
+/* game */
+.game-wrap{width:880px;margin:18px auto;padding:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:10px}
+.game-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+#gameCanvas{width:100%;border-radius:8px;background:linear-gradient(180deg,#071124,#0b1630);display:block}
+.game-hud{display:flex;justify-content:space-between;padding-top:8px;color:var(--muted)}
