@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ReactTelegram — Login / Register</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="center-card">
+    <h1>ReactTelegram</h1>
+    <p class="muted">Realtime chat & multiplayer — modern UI</p>
+
+    <div class="auth-box">
+      <input id="username" placeholder="Username" />
+      <input id="password" type="password" placeholder="Password" />
+      <div class="row">
+        <button id="btnLogin">Masuk</button>
+        <button id="btnRegister" class="muted-btn">Daftar</button>
+      </div>
+      <p id="msg" class="muted small"></p>
+    </div>
+
+    <div class="links">
+      <a href="chat.html" id="guestLink">Masuk sebagai tamu (tanpa simpan)</a>
+      <a href="game.html" id="gameLink">Langsung ke Game (guest)</a>
+    </div>
+  </div>
+
+<script>
+async function postJson(url, data) {
+  const res = await fetch(url, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(data)
+  });
+  return res.json();
+}
+
+document.getElementById('btnRegister').onclick = async () => {
+  const u = document.getElementById('username').value.trim();
+  const p = document.getElementById('password').value;
+  if (!u || !p) return msg('username & password diperlukan');
+  const r = await postJson('/api/register', { username: u, password: p });
+  if (r.ok) {
+    msg('registrasi berhasil. silakan login.');
+  } else {
+    msg(r.error || 'gagal registrasi');
+  }
+};
+
+document.getElementById('btnLogin').onclick = async () => {
+  const u = document.getElementById('username').value.trim();
+  const p = document.getElementById('password').value;
+  if (!u || !p) return msg('username & password diperlukan');
+  const r = await postJson('/api/login', { username: u, password: p });
+  if (r.ok) {
+    localStorage.setItem('rt_username', r.username);
+    localStorage.setItem('rt_token', r.token);
+    window.location.href = '/chat.html';
+  } else {
+    msg(r.error || 'gagal login');
+  }
+};
+
+document.getElementById('guestLink').onclick = () => {
+  localStorage.removeItem('rt_token');
+  localStorage.setItem('rt_username', 'Guest-' + Math.floor(Math.random()*1000));
+};
+
+function msg(t) { document.getElementById('msg').innerText = t; }
+</script>
+</body>
+</html>
