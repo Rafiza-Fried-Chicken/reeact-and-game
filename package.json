@@ -1,0 +1,15 @@
+{
+  "name": "reacttelegram",
+  "version": "1.0.0",
+  "description": "ReactTelegram - realtime chat + multiplayer game (Node + Socket.IO)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2",
+    "nodemon": "^2.0.22"
+  }
+}
